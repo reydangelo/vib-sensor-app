@@ -1,5 +1,8 @@
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import React, { useState } from "react";
 import {
+    Alert,
     ScrollView,
     StyleSheet,
     Text,
@@ -8,6 +11,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useData } from '../context/DataContext';
+
+function historyToCSV(history) {
+  const header = 'Timestamp,Value\n';
+  const rows = history.map(h => `${new Date(h.timestamp).toISOString()},${h.value}`).join('\n');
+  return header + rows;
+}
 
 export default function History() {
   const [historyRange, setHistoryRange] = useState("1d");
@@ -26,6 +35,25 @@ export default function History() {
   });
   const peakToday = todayHistory.length > 0 ? Math.max(...todayHistory.map(h => h.value)) : 0;
   const avgToday = todayHistory.length > 0 ? Math.round(todayHistory.reduce((sum, h) => sum + h.value, 0) / todayHistory.length) : 0;
+
+  const handleExport = async () => {
+    if (!history.length) {
+      Alert.alert('No data', 'There is no history data to export.');
+      return;
+    }
+    try {
+      const csv = historyToCSV(history);
+      const fileUri = FileSystem.cacheDirectory + 'vibration_history.csv';
+      await FileSystem.writeAsStringAsync(fileUri, csv, { encoding: FileSystem.EncodingType.UTF8 });
+      await Sharing.shareAsync(fileUri, {
+        mimeType: 'text/csv',
+        dialogTitle: 'Export Vibration History',
+        UTI: 'public.comma-separated-values-text',
+      });
+    } catch (e) {
+      Alert.alert('Export failed', 'Could not export data.');
+    }
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
@@ -97,7 +125,7 @@ export default function History() {
 
         {/* Action Buttons Row at the bottom */}
         <View style={[styles.actionsRow, { backgroundColor: cardColor, borderColor: isDark ? '#23262b' : '#E3F2FD' }]}> 
-          <TouchableOpacity style={[styles.actionButton, isDark ? { backgroundColor: '#1976D2' } : { backgroundColor: '#E3F2FD', borderWidth: 1, borderColor: '#1976D2' }]} onPress={() => {}}>
+          <TouchableOpacity style={[styles.actionButton, isDark ? { backgroundColor: '#1976D2' } : { backgroundColor: '#E3F2FD', borderWidth: 1, borderColor: '#1976D2' }]} onPress={handleExport}>
             <Text style={[styles.actionButtonText, { color: isDark ? '#fff' : '#1976D2' }]}>Export Data</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.actionButton, isDark ? { backgroundColor: '#1976D2' } : { backgroundColor: '#E3F2FD', borderWidth: 1, borderColor: '#1976D2' }]} onPress={() => {}}>

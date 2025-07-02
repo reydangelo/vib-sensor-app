@@ -2,6 +2,7 @@ import React from 'react';
 import { Dimensions, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Line, Polyline, Rect, Text as SvgText } from 'react-native-svg';
+import { useBLEWithConfig } from '../bluetooth/BLEManager';
 import { useData } from '../context/DataContext';
 
 const windowHeight = Dimensions.get('window').height;
@@ -15,6 +16,7 @@ const Y_AXIS_STEPS = 5;
 
 export default function Home() {
   const { realTimeData, config } = useData();
+  const { connected } = useBLEWithConfig(config);
   const isDark = config.theme === 'dark';
   const backgroundColor = isDark ? '#151718' : '#F7FAFF';
   const cardColor = isDark ? '#23262b' : '#fff';
@@ -71,11 +73,11 @@ export default function Home() {
           <View
             style={[
               styles.bluetoothIndicator,
-              { backgroundColor: '#FF5252' },
+              { backgroundColor: connected ? '#4CAF50' : '#FF5252' },
             ]}
           />
           <Text style={[styles.bluetoothText, { color: secondaryText }]}>
-            Not Connected
+            {connected ? 'Connected' : 'Not Connected'}
           </Text>
         </View>
 

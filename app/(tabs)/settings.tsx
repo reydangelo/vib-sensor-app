@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useData } from '../context/DataContext';
 
 export default function Settings() {
-  const { config, setConfig } = useData();
+  const { config, setConfig, clearHistory } = useData();
   const isDark = config.theme === 'dark';
   const backgroundColor = isDark ? '#151718' : '#F7FAFF';
   const cardColor = isDark ? '#23262b' : '#fff';
@@ -84,7 +84,7 @@ export default function Settings() {
 
       {/* Clear History */}
       <View style={[styles.card, { backgroundColor: cardColor }]}>
-        <TouchableOpacity style={[styles.clearButton, { backgroundColor: clearButtonColor }]} onPress={() => {}}>
+        <TouchableOpacity style={[styles.clearButton, { backgroundColor: clearButtonColor }]} onPress={clearHistory}>
           <Text style={[styles.clearButtonText, { color: clearButtonTextColor }]}>Clear All History</Text>
         </TouchableOpacity>
       </View>
