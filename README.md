@@ -1,6 +1,6 @@
 # Vib Sensor App
 
-This app connects to an SW-420 vibration sensor via Bluetooth (HC-01 module or compatible BLE device) and displays real-time vibration data.  
+This app connects to an SW-420 vibration sensor via Bluetooth (HC-05 module, classic Bluetooth) and displays real-time vibration data.  
 Made with Expo, React Native, and love.
 
 ---
@@ -19,7 +19,7 @@ vib-sensor-app/
       settings.tsx
     +not-found.tsx
     bluetooth/
-      BLEManager.ts
+      BluetoothClassicManager.ts
     context/
       DataContext.tsx
   assets/
@@ -73,24 +73,29 @@ vib-sensor-app/
 
 ## Features & Functionalities
 
-- **Bluetooth Low Energy (BLE) Integration**
-  - Scans for and connects to a BLE device (default: `HC-01`).
-  - Reads vibration data from a specified service and characteristic UUID.
+- **Classic Bluetooth (HC-05) Integration**
+
+  - Connects to a paired HC-05 device (classic Bluetooth, not BLE).
+  - Reads vibration data sent as plain text from the Arduino.
   - Real-time updates and notifications from the sensor.
 
 - **Data Visualization**
+
   - Home screen displays current vibration, status (Low/Moderate/High), and a real-time graph.
   - Alerts when vibration exceeds a configurable threshold.
 
 - **History & Export**
+
   - View historical vibration data with time filtering (1h, 6h, 1d, 1w).
   - Peak and average stats for today.
   - (UI for Export/Calibrate is present, but functionality may need to be implemented.)
 
 - **Alerts**
+
   - Alerts tab shows a list of vibration events with severity and timestamps.
 
 - **Settings**
+
   - Configure Bluetooth auto-connect, vibration threshold, and theme (light/dark).
   - (UI for clearing history is present, but functionality may need to be implemented.)
 
@@ -99,15 +104,10 @@ vib-sensor-app/
 
 ---
 
-## BLE Device Requirements
+## Bluetooth Device Requirements
 
-- The app is designed to connect to a BLE device (e.g., HC-01, HM-10, ESP32) advertising with:
-  - **Device Name:** `HC-01` (changeable in `app/bluetooth/BLEManager.ts`)
-  - **Service UUID:** `12345678-1234-1234-1234-123456789012` (replace with your device's actual UUID)
-  - **Characteristic UUID:** `12345678-1234-1234-1234-123456789012` (replace with your device's actual UUID)
-
-> **How to find your UUIDs:**  
-> Use a BLE scanner app (like nRF Connect) to scan your device and copy the Service and Characteristic UUIDs.
+- The app is designed to connect to a classic Bluetooth device (e.g., HC-05) that is already paired with your phone.
+  - **Device Name:** `HC-05` (changeable in `app/bluetooth/BluetoothClassicManager.ts`)
 
 ---
 
@@ -118,8 +118,8 @@ vib-sensor-app/
 - Node.js (v18+ recommended)
 - npm or yarn
 - [Expo CLI](https://docs.expo.dev/get-started/installation/)
-- A physical iOS or Android device (BLE does not work in Expo Go; use a development build or standalone app)
-- A BLE peripheral device (e.g., HC-01, HM-10, ESP32) advertising the correct name and UUIDs
+- A physical Android device (iOS support for classic Bluetooth is limited)
+- An HC-05 module paired with your phone
 
 ### 1. Clone the Repository
 
@@ -136,38 +136,36 @@ npm install
 yarn install
 ```
 
-### 3. Configure BLE Device Name and UUIDs
+### 3. Pair Your HC-05 Device
 
-Edit `app/bluetooth/BLEManager.ts` and set:
-```ts
-const HC01_NAME = 'YourDeviceName';
-const SERVICE_UUID = 'your-service-uuid';
-const CHARACTERISTIC_UUID = 'your-characteristic-uuid';
-```
+- Go to your phone's Bluetooth settings and pair with the HC-05 module.
+- Make sure the device is powered and visible.
 
 ### 4. Run on Your Device
 
-**Development Build (Recommended for BLE):**
+**Development Build (Required for Bluetooth):**
+
 ```bash
-npx expo run:ios   # for iOS
 npx expo run:android   # for Android
 ```
-> BLE will NOT work in Expo Go. You must use a development build or standalone app.
+
+> Classic Bluetooth will NOT work in Expo Go. You must use a development build or standalone app.
 
 **Start the Metro Bundler:**
+
 ```bash
 npx expo start
 ```
 
-**Open the app on your device** using the QR code or via the Expo Go/dev client.
+**Open the app on your device** using the QR code or via the Expo dev client.
 
 ---
 
 ## Usage
 
-1. Power on your BLE device and ensure it is advertising.
+1. Power on your HC-05 device and ensure it is paired with your phone.
 2. Open the app on your phone.
-3. The app will scan for the device and connect automatically (if auto-connect is enabled).
+3. The app will connect automatically (if auto-connect is enabled).
 4. View real-time vibration data, history, and alerts.
 5. Adjust settings as needed.
 
@@ -176,16 +174,17 @@ npx expo start
 ## Troubleshooting
 
 - **No device found?**
-  - Make sure your BLE device is powered and advertising.
-  - Double-check the device name and UUIDs in `BLEManager.ts`.
-  - Use a BLE scanner app to verify your device is visible and get the correct UUIDs.
 
-- **BLE not working in Expo Go?**
-  - You must use a development build or standalone app for BLE features.
+  - Make sure your HC-05 is powered and paired in system Bluetooth settings.
+  - Double-check the device name in `BluetoothClassicManager.ts`.
+
+- **Bluetooth not working in Expo Go?**
+
+  - You must use a development build or standalone app for Bluetooth features.
 
 - **Permissions**
   - Make sure Bluetooth permissions are enabled on your phone.
-  - On Android, location permissions may also be required for BLE scanning.
+  - On Android, location permissions may also be required for Bluetooth scanning.
 
 ---
 
@@ -193,7 +192,7 @@ npx expo start
 
 - [Expo](https://expo.dev/)
 - [React Native](https://reactnative.dev/)
-- [react-native-ble-plx](https://github.com/dotintent/react-native-ble-plx) (for BLE)
+- [react-native-bluetooth-classic](https://github.com/kenjdavidson/react-native-bluetooth-classic) (for classic Bluetooth)
 - [@react-navigation](https://reactnavigation.org/) (for navigation)
 - [@react-native-community/slider](https://github.com/callstack/react-native-slider)
 - [react-native-svg](https://github.com/software-mansion/react-native-svg) (for graphs)
